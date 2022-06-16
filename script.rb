@@ -1,5 +1,3 @@
-require 'pry-byebug'
-
 class Board
   attr_reader :board
 
@@ -38,24 +36,45 @@ class Board
   end
 
   def choose_play(play)
+    exit = false
     loop do
       print_board
       i = gets.chomp.to_i
-      break if i.zero?
+      if i.zero?
+        exit = true
+        break
+      end
 
       play_made = make_play(i, play)
       break if play_made
     end
+    exit
   end
 
   def full?
-    sum = @board.reduce(0) do |accumulator, box|
-      if box == 'empty'
-        accumulator += 1
-      end
-      accumulator
+    !@board.include?('empty')
+  end
+
+  def create_line(x, y, z)
+    [x, y, z]
+  end
+
+  def win?(play)
+    lines = []
+    win = false
+    for i in 0..2
+      lines << create_line(@board[i * 3], @board[i * 3 + 1], @board[i * 3 + 2])
+      lines << create_line(@board[i], @board[i+3], @board[i+6])
     end
-    sum.zero? ? true : false
+    lines << create_line(@board[0], @board[4], @board[8])
+    lines << create_line(@board[2], @board[4], @board[6])
+    lines.each do |line|
+      if line.all?(play)
+        win = true
+      end
+    end
+    puts "#{play.upcase} won!" if win
+    win
   end
 end
 
@@ -65,11 +84,20 @@ class GameController
   end
 
   def play
+    puts 'Welcome to Tic Tac Toe! The first player plays crosses, and the
+    second one plays knots. To play a certain box, type a number from 1 to 9.
+    Inputting a 0 or any other text will terminte the game. Have fun :)'
     loop do
-      break if @playing_board.full?
-
-      @playing_board.choose_play('cross')
-      @playing_board.choose_play('knot')
+      exit = @playing_board.choose_play('cross')
+      if exit || @playing_board.win?('cross') || @playing_board.full?
+        @playing_board.print_board
+        break
+      end
+      exit = @playing_board.choose_play('knot')
+      if exit || @playing_board.win?('knot') || @playing_board.full?
+        @playing_board.print_board
+        break
+      end
     end
     puts 'End!'
   end
