@@ -7,10 +7,10 @@ class Board
 
   def print_board
     i = 0
-    @board.each do |box|
+    @board.each_with_index do |box, index|
       case box
       when 'empty'
-        print '- '
+        print "#{index + 1} "
         i += 1
       when 'cross'
         print 'x '
@@ -22,16 +22,6 @@ class Board
       if (i % 3).zero?
         print "\n"
       end
-    end
-  end
-
-  def make_play(position, play)
-    if @board[position - 1] == 'empty'
-      @board[position - 1] = play
-      true
-    else
-      puts "You can't play there!"
-      false
     end
   end
 
@@ -55,10 +45,6 @@ class Board
     !@board.include?('empty')
   end
 
-  def create_line(x, y, z)
-    [x, y, z]
-  end
-
   def win?(play)
     lines = []
     win = false
@@ -75,6 +61,22 @@ class Board
     end
     puts "#{play.upcase} won!" if win
     win
+  end
+
+  private
+
+  def create_line(x, y, z)
+    [x, y, z]
+  end
+
+  def make_play(position, play)
+    if @board[position - 1] == 'empty'
+      @board[position - 1] = play
+      true
+    else
+      puts "You can't play there!"
+      false
+    end
   end
 end
 
